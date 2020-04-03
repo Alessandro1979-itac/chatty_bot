@@ -1,0 +1,112 @@
+import React, { Component } from 'react';
+import { Link } from 'react-router-dom';
+import { signin, signInWithGoogle, signInWithGitHub } from '../helpers/auth';
+
+//import '../../src/styles.css';
+
+export default class Login extends Component {
+  constructor() {
+    super();
+    this.state = {
+      error: null,
+      email: "",
+      password: ""
+    };
+    this.handleChange = this.handleChange.bind(this);
+    this.handleSubmit = this.handleSubmit.bind(this);
+    this.googleSignIn = this.googleSignIn.bind(this);
+    this.githubSignIn = this.githubSignIn.bind(this);
+  }
+
+  handleChange(event) {
+    this.setState({
+      [event.target.name]: event.target.value
+    });
+  }
+
+  async handleSubmit(event) {
+    event.preventDefault();
+    this.setState({ error: "" });
+    try {
+      await signin(this.state.email, this.state.password);
+    } catch (error) {
+      this.setState({ error: error.message });
+    }
+  }
+
+  async googleSignIn() {
+    try {
+      await signInWithGoogle();
+    } catch (error) {
+      this.setState({ error: error.message });
+    }
+  }
+
+  async githubSignIn() {
+    try {
+      await signInWithGitHub();
+    } catch (error) {
+      this.setState({ error: error.message });
+    }
+  }
+
+  render() {
+    return (
+      <div className="container">
+        <form
+          className="mt-5 py-5 px-5"
+          autoComplete="off"
+          onSubmit={this.handleSubmit}
+        >
+          <h1>
+            Logar em
+            <Link className="title ml-2" to="/">
+              Chatty
+            </Link>
+          </h1>
+          <p className="lead">
+          Preencha o formulário abaixo para fazer login na sua conta.
+          </p>
+          <div className="form-group">
+            <input
+              className="form-control"
+              placeholder="Email"
+              name="email"
+              type="email"
+              onChange={this.handleChange}
+              value={this.state.email}
+            />
+          </div>
+          <div className="form-group">
+            <input
+              className="form-control"
+              placeholder="Password"
+              name="password"
+              onChange={this.handleChange}
+              value={this.state.password}
+              type="password"
+            />
+          </div>
+          <div className="form-group">
+            {this.state.error ? (
+              <p className="text-danger">{this.state.error}</p>
+            ) : null}
+            <button className="btn btn-primary px-5" type="submit">Login</button>
+          </div>
+          <p>Você também pode fazer login com qualquer um desses serviços</p>
+          <button className="btn btn-danger mr-2" type="button" onClick={this.googleSignIn}>
+            Faça login no Google
+          </button>
+          <button className="btn btn-secondary" type="button" onClick={this.githubSignIn}>
+            Faça login no GitHub
+          </button>
+          <hr />
+          <p>
+            Não tem uma conta? <Link to="/signup">Inscreva-se</Link>
+          </p>
+        </form>
+
+      </div>
+    );
+  }
+}
